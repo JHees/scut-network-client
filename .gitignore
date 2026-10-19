@@ -10,3 +10,10 @@ compile_commands.json
 CTestTestfile.cmake
 .vscode/
 .cache/
+
+# Local network backups contain credentials.
+/network-backups/
+__pycache__/
+*.pyc
+.env
+scutclient.env

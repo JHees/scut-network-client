@@ -7,9 +7,9 @@ RefuseManualStop=no
 Persistent=true
 OnStartupSec=10
 OnCalendar=*-*-* 6:05
-Unit=drcom8021x.service
+Unit=DrcomScutClient.service
 RemainAfterElapse=true
 WakeSystem=true
 
 [Install]
-WantedBy=timer.target
+WantedBy=timers.target

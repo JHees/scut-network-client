@@ -1,14 +1,13 @@
 [Unit]
-Description=Drcom client service
-Requires=network.target
-After=network.target
-Before=create_ap.service
+Description=SCUT Dr.com wired authentication client
+Wants=network-online.target
+After=network-online.target
 
 [Service]
-ExecStart=/usr/local/bin/DrcomScutClient --conf /etc/drcom8021x.conf
 Type=simple
-# KillSignal=SIGINT
-Restart=true
+EnvironmentFile=/etc/scutclient.env
+ExecStart=/usr/local/bin/DrcomScutClient -u ${SCUT_USERNAME} -p ${SCUT_PASSWORD} -i eth0
+Restart=on-failure
 RestartSec=2
 
 [Install]

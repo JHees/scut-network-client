@@ -90,3 +90,15 @@ SCUT Router Podcast on [Telegram](https://t.me/joinchat/AAAAAERy9tE0gUvyTM_GrA)
 ![](https://www.gnu.org/graphics/agplv3-155x51.png)
 
 We believe that you know what you are doing. You should get this software for free.
+
+# 本机维护记录
+
+[树莓派网络配置、备份与清理记录](docs/NETWORK-MAINTENANCE.md)
+
+## 本机服务配置
+
+`DrcomScutClient.service` 从 `/etc/scutclient.env` 读取 `SCUT_USERNAME` 和 `SCUT_PASSWORD`。
+使用 `scutclient.env.example` 作为模板，将真实配置放到仓库外，并设置为 root 所有、权限 600。
+服务默认使用 `eth0` 进行有线校园网认证，不管理 AP，也不自动切换 Wi-Fi。
+当前树莓派使用实验室 Wi-Fi，此服务保持停用；只有需要有线校园网认证时才应重新启用。
+不要将真实凭据、本机网络备份或认证日志提交到 Git。
