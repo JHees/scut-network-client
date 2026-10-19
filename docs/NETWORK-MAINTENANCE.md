@@ -100,6 +100,22 @@ ZeroTier 软件源删除，已停用的 hostapd、dnsmasq、radvd、dhcpcd5、wi
 
 Oh My Zsh 的失效镜像地址已改为 `https://github.com/ohmyzsh/ohmyzsh.git`。由于树莓派直连 GitHub 超时，更新由另一台电脑从官方仓库下载后以 Git bundle 中转，保持完整 Git 历史并仅执行快进合并。更新提交为 `964ddf78`；用户 Git 配置中把 GitHub 自动改写为失效镜像的 insteadOf 规则也已移除；未来在线更新仍取决于树莓派到 GitHub 的网络连通性。
 
-`tools/update-system.py` 是这台设备的一次性维护记录：更新前配置与更新结果放在被 Git 忽略的 `network-backups/system-update-*/`，其中 `postboot.json` 记录重启后 Wi-Fi、DNS、HTTPS 和时间同步的验证结果。脚本会自动重启，不应在其他设备直接运行。
+`network-backups/maintenance-scripts/update-system.py` 是这台设备的一次性维护记录：更新前配置与更新结果放在被 Git 忽略的 `network-backups/system-update-*/`，其中 `postboot.json` 记录重启后 Wi-Fi、DNS、HTTPS 和时间同步的验证结果。脚本会自动重启，不应在其他设备直接运行。
 
 GitHub 上传不包含 `network-backups/`、构建产物、真实环境文件或认证日志。服务模板使用 `scutclient.env.example`，账号密码应写入仓库外的 `/etc/scutclient.env`（root 所有，权限 600）。
+
+## 最终状态与第二次重启验证（2026-10-19 20:32 CST）
+
+- 系统已更新为 Ubuntu 22.04.5 LTS，运行内核 `5.15.0-1110-raspi`。
+- 本轮升级 415 个软件包、新安装 21 个依赖；结束时检查为 0 个待升级软件包。
+- `192.168.50.2/24` 已从 Netplan 和运行状态中移除；网线不再配置静态地址。
+- 两次重启均自动连接 `Acoustic filter lab`，当前 DHCP 地址 `192.168.4.102`，默认路由经 `192.168.4.1`、优先级 100。
+- DNS 解析、HTTPS（200）及 NTP 同步通过验证；SSH 可正常登录。
+- 首次重启发现默认网络等待服务忽略可选 Wi-Fi，导致启动等待超时。通过 `/etc/systemd/system/systemd-networkd-wait-online.service.d/10-wifi.conf` 改为仅等待 wlan0 IPv4，第二次重启约 5 秒完成该等待，系统失败服务为 0。
+- 不再使用的 `rtl88x2bu` 已从全部内核的 DKMS 安装和注册中移除；板载 Wi-Fi 使用 `brcmfmac`，不受影响。`/usr/src/rtl88x2bu-5.8.7.1` 源码保留，并另存源码归档。
+- Oh My Zsh 官方提交已与 GitHub API 核验一致；交互式 zsh 启动通过。直连 GitHub 的网络超时仍可能影响未来在线更新，但失效镜像及其 URL 改写规则已经移除。
+- 未重装系统、未部署 KVM，未删除个人代码。核心 `src/`、`wireless/` 和构建配置保持不变。
+
+最新验证和配置快照位于 `network-backups/boot-check-20261019-203206/`，其中 `postboot.json` 是此次验证结果，`after-config.tar` 是最终网络与 apt 配置，`10-wifi.conf` 是额外的启动等待修正。恢复最新状态时应结合这两个配置文件；早期 `current/` 和 `legacy/` 均为历史快照。
+
+软件升级前后的记录位于 `network-backups/system-update-20261019-195455/`。一次性维护脚本集中到 `network-backups/maintenance-scripts/`，全部仅在本机保留、不上传 GitHub。
