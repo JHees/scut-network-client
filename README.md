@@ -1,6 +1,6 @@
-# scutclient · JHees 分支
+# SCUT 有线与无线校园网客户端
 
-面向 Linux 的华南理工大学校园网认证客户端，基于 [scutclient/scutclient](https://github.com/scutclient/scutclient) 修改。此分支保留有线 Dr.com / 802.1X 认证，并加入 C++ 命令行实现、实验性无线门户认证和 systemd 服务配置。
+面向 Linux 的华南理工大学校园网认证客户端，基于 [scutclient/scutclient](https://github.com/scutclient/scutclient) 修改。此分支保留有线 Dr.com / 802.1X 认证，并加入 C++ 命令行实现、无线门户认证和 systemd 服务配置。
 
 ## 当前功能与上游区别
 
@@ -8,11 +8,11 @@
 |---|---|---|
 | 有线认证 | C 实现，程序名 `scutclient` | C++17 重构，程序名 `DrcomScutClient`；提供认证、重试、注销和日志功能 |
 | 命令行 | `getopt` 参数解析 | 使用 [clipp](https://github.com/muellan/clipp)，网卡参数为 `--interface` |
-| 无线门户 | 无本分支的 `wireless/` 模块 | 新增独立 `wireless` 程序，包含门户重定向、连接参数提取和登录请求流程，仍属实验性功能 |
+| 无线门户 | 无本分支的 `wireless/` 模块 | 新增独立 `wireless` 程序，包含门户重定向、连接参数提取和登录请求流程，已由作者长期使用 |
 | 服务管理 | 提供 OpenWrt 集成文件 | 另加 systemd service / timer；账号密码从仓库外的环境文件读取 |
 | 构建与维护 | 上游构建及打包流程 | CMake 构建两个程序，增加卸载目标、凭据配置示例和本机维护说明 |
 
-这是独立维护的个人分支，尚未同步上游全部后续提交。对照时间：2026-10-21；上游来源与当前分支分别见 [源项目](https://github.com/scutclient/scutclient) 和 [JHees/scutclient](https://github.com/JHees/scutclient)。
+这是独立维护的个人分支，尚未同步上游全部后续提交。对照时间：2026-10-21；上游来源与当前分支分别见 [源项目](https://github.com/scutclient/scutclient) 和 [JHees/scut-network-client](https://github.com/JHees/scut-network-client)。
 
 ## 编译
 
@@ -23,8 +23,8 @@ sudo apt install build-essential cmake curl libcurl4-openssl-dev libboost-dev
 curl -fL https://raw.githubusercontent.com/muellan/clipp/v1.2.3/include/clipp.h -o /tmp/clipp.h
 sudo install -m 644 /tmp/clipp.h /usr/local/include/clipp.h
 
-git clone https://github.com/JHees/scutclient.git
-cd scutclient
+git clone https://github.com/JHees/scut-network-client.git
+cd scut-network-client
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cmake --build build -j2
 ```
@@ -50,7 +50,7 @@ sudo ./build/DrcomScutClient --username '<校园网账号>' --password '<校园�
 ./build/wireless --username '<校园网账号>' --password '<校园网密码>' --interface wlan0
 ```
 
-无线门户地址和页面参数针对代码编写时的 SCUT 环境，未验证当前校园网是否仍兼容。
+无线门户认证已由作者长期使用。该实现面向 SCUT 门户接口，在其他网络环境使用时需核对门户地址和参数。
 
 ## 可选的 systemd 服务
 
@@ -64,7 +64,6 @@ sudo ./build/DrcomScutClient --username '<校园网账号>' --password '<校园�
 
 - **未实现自动连接 Wi-Fi、有线 / 无线切换、路由切换或热点管理。** `wireless/` 中相关流程仍有 TODO，`addRouteRable()` 当前只解析并打印地址。
 - OpenWrt 打包文件仍保留上游下载地址与 `scutclient` 可执行文件名；直接打包此分支前需要适配，不能照搬旧版 OpenWrt 步骤。
-- 无线模块仍需完善错误处理和登录 / 注销流程；本次没有做真实校园网认证测试。
 - [`docs/NETWORK-MAINTENANCE.md`](docs/NETWORK-MAINTENANCE.md) 是特定树莓派的历史维护记录，不是通用部署配置。
 - `disabled-tasks/` 保存本机停用任务及说明，`network-backups/` 保存历史配置；它们可能含私有凭据，均被 Git 忽略，不随公开仓库发布。真实账号、密码、认证日志和构建产物也不要提交。
 
