@@ -1,5 +1,7 @@
 # 树莓派网络维护记录
 
+> 本文是特定设备的历史维护记录，不代表当前软件功能或通用部署步骤。2026-10-21 已恢复 scutclient 源码目录，旧系统服务和定时器保持移除；停用任务及历史脚本副本以普通文件保存于本机 `disabled-tasks/`，不随 Git 仓库发布。功能与使用方式请以根目录 README 为准。
+
 记录日期：2026-10-19。设备：JHees-rpi，Raspberry Pi 4B，Ubuntu 22.04.1 LTS。
 
 ## scutclient 与旧网络设置的关系
@@ -44,9 +46,7 @@
 - `network-backups/legacy/network-backup-*/`：先前 `/root/network-backup-*` 的完整副本，包含修复前配置归档。迁移逐文件核对 SHA-256 和符号链接目标后，才删除原目录。
 - `network-backups/current/network-config.tar`：本次集中归档时的网络配置，包括凭据；tar 内保留原文件权限和链接。
 - `network-backups/current/services-before.txt`、`services-after.txt`：清理前后相关服务的启用及运行状态。
-- `network-backups/SHA256SUMS`：集中备份的文件校验值。
-- `network-backups/maintenance-scripts/repair-network-20261019.py`：保留上一次修复脚本作历史参考。
-- `network-backups/maintenance-scripts/archive-network-cleanup.py`：本次归档和清理脚本。
+- 一次性修复与归档脚本已于 2026-10-21 清理；配置备份和验证结果仍保留。
 
 `network-backups/` 权限为 700，普通文件为 600，并已加入 `.gitignore`。备份包含 Wi-Fi 和校园网认证凭据，不应提交到 Git 或公开分享。
 
@@ -69,12 +69,7 @@ curl -I https://example.com
 systemctl is-active systemd-networkd systemd-resolved systemd-timesyncd
 ```
 
-检查备份完整性：
-
-```bash
-cd /home/jhees/scutclient/network-backups
-sha256sum -c SHA256SUMS
-```
+停用的服务、定时任务及历史维护脚本以普通文件保存于 `disabled-tasks/`，说明见 `disabled-tasks/README.md`。网络配置快照仍保留在 `network-backups/`，不再维护额外的哈希校验清单。
 
 恢复前先将 tar 解包到临时目录进行比较，不要直接覆盖 `/etc`。当前配置归档中的 Netplan、DNS 和 sysctl 配置可用于恢复当前网络；恢复旧 AP 时需要原 USB 网卡、相应服务以及对上游网络重新验证。旧归档中的恢复脚本可能仍含迁移前的绝对路径，不应直接运行。
 
@@ -100,7 +95,7 @@ ZeroTier 软件源删除，已停用的 hostapd、dnsmasq、radvd、dhcpcd5、wi
 
 Oh My Zsh 的失效镜像地址已改为 `https://github.com/ohmyzsh/ohmyzsh.git`。由于树莓派直连 GitHub 超时，更新由另一台电脑从官方仓库下载后以 Git bundle 中转，保持完整 Git 历史并仅执行快进合并。更新提交为 `964ddf78`；用户 Git 配置中把 GitHub 自动改写为失效镜像的 insteadOf 规则也已移除；未来在线更新仍取决于树莓派到 GitHub 的网络连通性。
 
-`network-backups/maintenance-scripts/update-system.py` 是这台设备的一次性维护记录：更新前配置与更新结果放在被 Git 忽略的 `network-backups/system-update-*/`，其中 `postboot.json` 记录重启后 Wi-Fi、DNS、HTTPS 和时间同步的验证结果。脚本会自动重启，不应在其他设备直接运行。
+一次性系统更新脚本已于 2026-10-21 清理。更新前配置与更新结果仍放在被 Git 忽略的 `network-backups/system-update-*/`，其中 `postboot.json` 记录重启后 Wi-Fi、DNS、HTTPS 和时间同步的验证结果。
 
 GitHub 上传不包含 `network-backups/`、构建产物、真实环境文件或认证日志。服务模板使用 `scutclient.env.example`，账号密码应写入仓库外的 `/etc/scutclient.env`（root 所有，权限 600）。
 
@@ -118,4 +113,4 @@ GitHub 上传不包含 `network-backups/`、构建产物、真实环境文件或
 
 最新验证和配置快照位于 `network-backups/boot-check-20261019-203206/`，其中 `postboot.json` 是此次验证结果，`after-config.tar` 是最终网络与 apt 配置，`10-wifi.conf` 是额外的启动等待修正。恢复最新状态时应结合这两个配置文件；早期 `current/` 和 `legacy/` 均为历史快照。
 
-软件升级前后的记录位于 `network-backups/system-update-20261019-195455/`。一次性维护脚本集中到 `network-backups/maintenance-scripts/`，全部仅在本机保留、不上传 GitHub。
+软件升级前后的记录位于 `network-backups/system-update-20261019-195455/`。一次性维护脚本已清理，配置备份与升级结果仅在本机保留、不上传 GitHub。

@@ -17,3 +17,9 @@ __pycache__/
 *.pyc
 .env
 scutclient.env
+
+# Disabled installed service copies may contain credentials.
+/disabled-tasks/
+
+# Authentication logs are local runtime data.
+/scutclient.log
